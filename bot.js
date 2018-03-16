@@ -2,8 +2,6 @@ require('dotenv').config();
 const MongoClient = require('mongodb').MongoClient;
 
 const {
-    IncomingWebhook,
-    WebClient,
     RtmClient,
     RTM_EVENTS
 } = require('@slack/client');
@@ -12,7 +10,7 @@ const MONGO_URL = process.env.MONGO_URL;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const rtm = new RtmClient(BOT_TOKEN);
 
-const BOT_ID = '@U9F9U4EVC';
+const BOT_ID = process.env.BOT_ID;
 const BOT_TAG = `<${BOT_ID}>`; /* this is how the bot's reference shows in message text */
 
 let db; /* reference for database */
@@ -66,7 +64,7 @@ rtm.on(RTM_EVENTS.MESSAGE, async message => {
                 channel
             );
         } catch (e) {
-            console.error('ERROR! on line 43');
+            throw e;
         }
     }
 });
@@ -76,7 +74,7 @@ const insertPerson = async tag => {
         const found = await db.collection('people').find({ _id: tag }).toArray();
         if (found.length > 0) return; /* return if the person already exists */
     } catch (e) {
-        console.log(e)
+        throw e;
     }
     await db.collection('people').insert({ _id: tag });
 }
