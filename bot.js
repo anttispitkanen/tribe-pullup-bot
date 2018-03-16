@@ -24,55 +24,56 @@ MongoClient.connect(MONGO_URL, (err, client) => {
     db = client.db('pullup-coach');
     console.log('Database connection ready');
     app.listen(PORT, () => console.log('listening at ' + PORT));
-    rtm.start();
+    // rtm.start();
 });
 
-rtm.on(RTM_EVENTS.MESSAGE, async message => {
-    if (message.type === 'message' && message.text && message.text.indexOf(BOT_TAG) === 0) {
-        const sender = message.user;
-        const senderTag = `<@${sender}>`;
-        const channel = message.channel;
 
-        const numPullupsText = message.text.substr(BOT_TAG.length).trim();
-        if (numPullupsText.toLowerCase() === 'oops') {
-            try {
-                const removed = await removeLatestSet(sender);
-                const persPullups = await countPersonsPullups(sender);
-                rtm.sendMessage(
-                    `${senderTag}\n
-                    It's ok accidents happen! I removed your latest set of ${removed} :relieved:\n
-                    You are now at a total of ${persPullups.allPullups} pullups done :ok_hand:
-                    `,
-                    channel
-                );
-                return;
-            } catch (e) {
-                console.error(e);
-                return;
-            }
-        }
+// rtm.on(RTM_EVENTS.MESSAGE, async message => {
+//     if (message.type === 'message' && message.text && message.text.indexOf(BOT_TAG) === 0) {
+//         const sender = message.user;
+//         const senderTag = `<@${sender}>`;
+//         const channel = message.channel;
 
-        const numPullups = parseInt(numPullupsText, 10);
-        /* dummy compare that there was only a number submitted */
-        if (numPullupsText !== ('' + numPullups) || numPullups < 1) return;
+//         const numPullupsText = message.text.substr(BOT_TAG.length).trim();
+//         if (numPullupsText.toLowerCase() === 'oops') {
+//             try {
+//                 const removed = await removeLatestSet(sender);
+//                 const persPullups = await countPersonsPullups(sender);
+//                 rtm.sendMessage(
+//                     `${senderTag}\n
+//                     It's ok accidents happen! I removed your latest set of ${removed} :relieved:\n
+//                     You are now at a total of ${persPullups.allPullups} pullups done :ok_hand:
+//                     `,
+//                     channel
+//                 );
+//                 return;
+//             } catch (e) {
+//                 console.error(e);
+//                 return;
+//             }
+//         }
 
-        try {
-            await insertPerson(sender);
-            await insertSetOfPullups(sender, numPullups);
-            const persPullups = await countPersonsPullups(sender);
-            rtm.sendMessage(
-                `${senderTag}\n
-                ${numPullups}, great work!\n
-                That's ${persPullups.allPullups} in total\n
-                Your best set is ${persPullups.bestSet}
-                :muscle::sunglasses::+1:`,
-                channel
-            );
-        } catch (e) {
-            throw e;
-        }
-    }
-});
+//         const numPullups = parseInt(numPullupsText, 10);
+//         /* dummy compare that there was only a number submitted */
+//         if (numPullupsText !== ('' + numPullups) || numPullups < 1) return;
+
+//         try {
+//             await insertPerson(sender);
+//             await insertSetOfPullups(sender, numPullups);
+//             const persPullups = await countPersonsPullups(sender);
+//             rtm.sendMessage(
+//                 `${senderTag}\n
+//                 ${numPullups}, great work!\n
+//                 That's ${persPullups.allPullups} in total\n
+//                 Your best set is ${persPullups.bestSet}
+//                 :muscle::sunglasses::+1:`,
+//                 channel
+//             );
+//         } catch (e) {
+//             throw e;
+//         }
+//     }
+// });
 
 const insertPerson = async tag => {
     try {
@@ -120,3 +121,7 @@ const removeLatestSet = async tag => {
         throw e;
     }
 }
+
+app.post('/message', async (req, res) => {
+    console.log(req);
+});
