@@ -13,12 +13,17 @@ const rtm = new RtmClient(BOT_TOKEN);
 const BOT_ID = process.env.BOT_ID;
 const BOT_TAG = `<${BOT_ID}>`; /* this is how the bot's reference shows in message text */
 
+const express = require('express');
+const app = express();
+const PORT = process.env.NODE_ENV === 'production' ? process.env.PORT : '3000';
+
 let db; /* reference for database */
 
 MongoClient.connect(MONGO_URL, (err, client) => {
     if (err) return console.error(err);
     db = client.db('pullup-coach');
     console.log('Database connection ready');
+    app.listen(PORT, () => console.log('listening at ' + PORT));
     rtm.start();
 });
 
