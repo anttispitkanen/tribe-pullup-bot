@@ -2,6 +2,7 @@ require('dotenv').config();
 const MongoClient = require('mongodb').MongoClient;
 
 const {
+    
     RtmClient,
     RTM_EVENTS
 } = require('@slack/client');
@@ -13,8 +14,12 @@ const rtm = new RtmClient(BOT_TOKEN);
 const BOT_ID = process.env.BOT_ID;
 const BOT_TAG = `<${BOT_ID}>`; /* this is how the bot's reference shows in message text */
 
+const SLACK_TOKEN = process.env.SLACK_TOKEN;
+
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
+app.use(bodyParser.json());
 const PORT = process.env.NODE_ENV === 'production' ? process.env.PORT : '3000';
 
 let db; /* reference for database */
@@ -122,6 +127,15 @@ const removeLatestSet = async tag => {
     }
 }
 
+app.get('/', (req, res) => {
+    res.json({ message: 'request received!' });
+});
+
 app.post('/message', async (req, res) => {
-    console.log(req);
+    console.log(req.body);
+    if (req.body.token === SLACK_TOKEN) {
+        res.status(200).json({ challenge: req.body.challenge });
+    } else {
+        res.status(403).json({ error: 'not permitted!' });
+    }
 });
